@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "courcework-4"
+version = "0.1.0"
+description = ""
+authors = ["Мария Юркшайтене <masha.afan@bk.ru>"]
+readme = "README.md"
+packages = [{include = "courcework_4"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+requests = "^2.31.0"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
