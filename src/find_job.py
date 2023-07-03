@@ -6,13 +6,37 @@ import requests
 
 
 class Platforms(ABC):
-    """Абстрактный класс для работы с API платформ"""
-    api_hh = "http://api.hh.ru/"
-    api_sj = "http://api.superjob.ru/"
-
-    # X-Api-App-Id = os.getenv("SECRET_KEY_SJ")
-    def __init__(self):
+    def __init__(self, name, url, pay, description):
         super().__init__()
+
+    def get_requests_sj(keyword='python'):
+        """Абстрактный класс для работы с API платформ"""
+        api_sj = "http://api.superjob.ru/2.0/vacancies/"
+        params = {
+            "count": 100,
+            "page": 0,
+            "keyword": keyword,
+            "archive": False,
+        }
+        headers = {
+            "X-Api-App-Id": os.getenv("SECRET_KEY_SJ")
+        }
+
+        response = requests.get(api_sj, headers=headers, params=params).json()
+        print(json.dumps(response, indent=2, ensure_ascii=False))
+
+    def get_requests_hh(keyword='python'):
+        """Абстрактный класс для работы с API платформ"""
+        api_hh = "http://api.hh.ru/vacancies/"
+        params = {
+            "count": 100,
+            "page": 0,
+            "keyword": keyword,
+            "archive": False
+        }
+
+        response = requests.get(api_hh, params=params).json()
+        print(json.dumps(response, indent=2, ensure_ascii=False))
 
 
 class VakanciesJson(ABC):
@@ -30,9 +54,16 @@ class VakanciesJson(ABC):
             for item in f:
                 del "filename.txt"[item]
 
-
-class HeadHunterAPI(Platforms, VakanciesJson):
+#
+class HeadHunterAPI(Platforms):
     """Класс для получения вакансий по API с HeadHunter"""
+    def __init__(self, name, url, pay, description, keyword):
+        super().__init__(name, url, pay, description)
+        self.keyword = keyword
+
+    def get_requests_hh(keyword='python'):
+        pass
+
 
     def get_vacancies(self):
         response = requests.get("http://api.hh.ru/vacancies")
@@ -43,11 +74,14 @@ class HeadHunterAPI(Platforms, VakanciesJson):
 class SuperJobAPI(Platforms):
     """Класс для получения вакансий по API с SuperJob"""
 
+    def get_requests(self):
+        pass
+
     def get_vacancies(self):
         response = requests.get("http://api.superjob.ru/vacancies")
         print(response.text)
 
-
+#
 class Vacancies:
     """Класс для работы с вакансиями"""
 
