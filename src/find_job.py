@@ -6,93 +6,121 @@ import requests
 
 
 class Platforms(ABC):
-    def __init__(self, name, url, pay, description):
-        super().__init__()
+    "Абстрактный класс"
 
-    def get_requests_sj(keyword='python'):
-        """Абстрактный класс для работы с API платформ"""
-        api_sj = "http://api.superjob.ru/2.0/vacancies/"
-        params = {
-            "count": 100,
-            "page": 0,
-            "keyword": keyword,
-            "archive": False,
-        }
-        headers = {
-            "X-Api-App-Id": os.getenv("SECRET_KEY_SJ")
-        }
-
-        response = requests.get(api_sj, headers=headers, params=params).json()
-        print(json.dumps(response, indent=2, ensure_ascii=False))
-
-    def get_requests_hh(keyword='python'):
-        """Абстрактный класс для работы с API платформ"""
-        api_hh = "http://api.hh.ru/vacancies/"
-        params = {
-            "count": 100,
-            "page": 0,
-            "keyword": keyword,
-            "archive": False
-        }
-
-        response = requests.get(api_hh, params=params).json()
-        print(json.dumps(response, indent=2, ensure_ascii=False))
-
-
-class VakanciesJson(ABC):
-    """Класс для реализации записи, удаления, сортировки полученных данных в файл"""
-
-    def __init__(self):
-        super().__init__()
-
-    def to_json(self):  # Запись полученных данных
-        with open("filename.txt", "w", encoding="utf-8") as f:
-            json.dump(self.__dict__, f, indent=2, ensure_ascii=False)
-
-    def change_json(self, item):  # Удаление
-        with open("filename.txt", "a", encoding="utf-8") as f:
-            for item in f:
-                del "filename.txt"[item]
-
-#
-class HeadHunterAPI(Platforms):
-    """Класс для получения вакансий по API с HeadHunter"""
-    def __init__(self, name, url, pay, description, keyword):
-        super().__init__(name, url, pay, description)
-        self.keyword = keyword
-
-    def get_requests_hh(keyword='python'):
+    @abstractmethod
+    def get_vacancies(self, keyword):
         pass
 
 
-    def get_vacancies(self):
-        response = requests.get("http://api.hh.ru/vacancies")
+class HeadHunterAPI(Platforms):
+    """Класс для получения вакансий по API с HeadHunter"""
 
-        print(response.text)
+    def __init__(self, keyword):
+        self.keyword = keyword
+        self.v = []
+
+    def get_formatted_vacancies(self):
+        formatted_v = []
+        for vacancy in self.v:
+            formatted_v.append({
+                'salary_from': vacancy['salary']['from'],
+                'title': vacancy['title'],
+                'url': vacancy['url'],
+                'description': vacancy['description'],
+                'API': 'HH'
+            })
+        return formatted_v
+
+    def get_vacancies(self, keyword):
+        v = []
+        for page in v:
+            api_hh = "http://api.hh.ru/vacancies/"
+            params = {
+                "per_page": 100,
+                "page": page,
+                "keyword": self.keyword,
+                "archive": False
+            }
+
+            v.extend(requests.get(api_hh, params=params).json())
 
 
 class SuperJobAPI(Platforms):
     """Класс для получения вакансий по API с SuperJob"""
 
-    def get_requests(self):
-        pass
+    def __init__(self, keyword):
+        self.keyword = keyword
 
-    def get_vacancies(self):
-        response = requests.get("http://api.superjob.ru/vacancies")
-        print(response.text)
+    def get_formatted_vacancies(self):
+        formatted_v = []
+        for vacancy in self.v:
+            formatted_v.append({
+                'salary_from': vacancy['payments_from'],
+                'title': vacancy['title'],
+                'url': vacancy['url'],
+                'description': vacancy['description'],
+                'API': 'SJ'
+            })
+
+        return formatted_v
+
+    def get_vacancies(self, keyword):
+        v = []
+        for page in v:
+            api_sj = "https://api.superjob.ru/2.0/vacancies/"
+            params = {
+                "count": 100,
+                "page": page,
+                "keyword": self.keyword,
+                "archive": False,
+            }
+            headers = {
+                "X-Api-App-Id": os.getenv("SECRET_KEY_SJ")
+            }
+
+            v.extend(requests.get(api_sj, headers=headers, params=params).json())
+
 
 #
-class Vacancies:
-    """Класс для работы с вакансиями"""
+class Vacancy:
+    """Класс для работы с вакансиями: сравнение по з/п"""
 
-    def __init__(self, name, url, pay, description):
-        self.name = name
-        self.url = url
-        self.pay = pay
-        self.description = description
-
-    def __lt__(self, other):
-        pass
+    def __init__(self, vacancy):
+        self.title = vacancy['title']
+        self.url = vacancy['url']
+        self.salary_from = vacancy['salary_from']
+        self.description = vacancy['description']
 
     def __gt__(self, other):
-        pass
+        return self.salary_from > other.salary_from
+
+    def __str__(self):
+        return f"""
+{self.title}
+Зарплата от {self.salary_from}"""
+
+
+class JSONSaver():
+    """Класс для реализации записи, удаления, сортировки полученных данных в файл"""
+
+    def __init__(self, filename, vacancies):
+        self.filename = filename
+        self.create_file(vacancies)
+
+    def create_file(self, vacancies):
+        with open("filename.txt", "r", encoding="utf-8") as f:
+            json.dump(vacancies, f, indent=2, ensure_ascii=False)
+
+    def select_all(self):
+        with open("filename.txt", "r", encoding="utf-8") as f:
+            data = json.load(f)
+        vacancy_data = [Vacancy(x) for x in data]
+        return vacancy_data
+
+    def sorted_by(self):
+        vacancy_data = self.select_all()
+        s = sorted(vacancy_data)
+        return s
+
+
