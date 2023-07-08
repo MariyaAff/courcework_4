@@ -1,16 +1,31 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+from src.find_job import HeadHunterAPI, JSONSaver
+from src.find_job import SuperJobAPI
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+def main():
+    sj_api = SuperJobAPI("python")
+    hh_api = HeadHunterAPI("python")
+    keyword = input("Введите слово для поиска")
+    vacancies = []
+    for api in (hh_api, sj_api):
+        api.get_vacancies("python")
+        vacancies.append(api.get_formatted_vacancies())
+
+    js = JSONSaver(keyword, vacancies)
+    vacancies = []
+    while True:
+        input('1 вывести все \n 2 отсортировать или exit')
+        if 1:
+            vacancies = js.select_all()
+            print(vacancies)
+        if 2:
+            vacancies = js.sorted_by()
+            print(vacancies)
+        if "exit":
+            break
+        for v in vacancies:
+            print(v)
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+if __name__ == "__main__":
+    main()
