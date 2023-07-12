@@ -51,6 +51,7 @@ class SuperJobAPI(Platforms):
 
     def __init__(self, keyword):
         self.keyword = keyword
+        self.v = []
 
     def get_formatted_vacancies(self):
         formatted_v = []
@@ -101,7 +102,7 @@ class Vacancy:
 Зарплата от {self.salary_from}"""
 
 
-class JSONSaver():
+class JSONSaver:
     """Класс для реализации записи, удаления, сортировки полученных данных в файл"""
 
     def __init__(self, filename, vacancies):
@@ -122,5 +123,3 @@ class JSONSaver():
         vacancy_data = self.select_all()
         s = sorted(vacancy_data)
         return s
-
-
