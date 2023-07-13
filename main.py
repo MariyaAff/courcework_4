@@ -23,8 +23,8 @@ def main():
             print(vacancies)
         if "exit":
             break
-        for v in vacancies:
-            print(v)
+    for v in vacancies:
+        print(v)
 
 
 if __name__ == "__main__":
