@@ -67,8 +67,8 @@ class SuperJobAPI(Platforms):
         return formatted_v
 
     def get_vacancies(self, keyword):
-        self.v = []
-        for page in self.v:
+        v = []
+        for page in v:
             api_sj = "https://api.superjob.ru/2.0/vacancies/"
             params = {
                 "count": 100,
@@ -79,8 +79,8 @@ class SuperJobAPI(Platforms):
             headers = {
                 "X-Api-App-Id": os.getenv("SECRET_KEY_SJ")
             }
-
-            self.v.extend(requests.get(api_sj, headers=headers, params=params).json())
+            v.append(1)
+            v.extend(requests.get(api_sj, headers=headers, params=params).json())
 
 
 #

@@ -24,6 +24,7 @@ def main():
         if "exit":
             break
     for v in vacancies:
+
         print(v)
 
 
